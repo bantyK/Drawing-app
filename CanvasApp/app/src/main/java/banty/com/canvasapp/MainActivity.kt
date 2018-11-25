@@ -1,5 +1,6 @@
 package banty.com.canvasapp
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
@@ -10,12 +11,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var toolbarBottom: Toolbar
+    private lateinit var drawingView: CustomView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         inflateBottomToolbar()
-
+        drawingView = findViewById(R.id.custom_view)
 
     }
 
@@ -29,7 +32,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleMenuItemClick(menuItem: MenuItem?): Boolean {
+        when (menuItem?.itemId) {
+            R.id.action_erase -> {
+                showEraseDialog()
+            }
+        }
         return false
+    }
+
+    private fun showEraseDialog() {
+        val deleteDialog = AlertDialog.Builder(this)
+        deleteDialog.setTitle(getString(R.string.delete_drawing_heading))
+        deleteDialog.setMessage(getString(R.string.delete_drawing_warning))
+        deleteDialog.setPositiveButton("Yes") { dialog, _ ->
+            drawingView.eraseAll()
+            dialog.dismiss()
+        }
+        deleteDialog.setNegativeButton(
+            "Cancel"
+        ) { dialog, _ -> dialog.cancel() }
+        deleteDialog.show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

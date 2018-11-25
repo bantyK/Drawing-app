@@ -1,13 +1,11 @@
 package banty.com.canvasapp
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Path
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import java.util.*
 
 /**
  * Created by Banty on 25/11/18.
@@ -22,6 +20,13 @@ class CustomView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
 
     private var currentBrushSize: Float = 1F
     private var lastBrushSize: Float = 1F
+
+
+    private val paths = ArrayList<Path>()
+    private val undonePaths = ArrayList<Path>()
+    private var mX: Float = 0F
+    private var mY: Float = 0F
+    private val TOUCH_TOLERANCE = 4
 
     init {
         initComponents()
@@ -45,7 +50,9 @@ class CustomView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     }
 
     override fun onDraw(canvas: Canvas?) {
-        canvas?.drawBitmap(canvasBitmap, 0F, 0F, canvasPaint)
+        for (p in paths) {
+            canvas?.drawPath(p, drawPaint)
+        }
         canvas?.drawPath(drawPath, drawPaint)
     }
 
@@ -62,29 +69,56 @@ class CustomView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 if (touchX != null && touchY != null) {
-                    drawPath.moveTo(touchX, touchY)
+                    touchStart(touchX, touchY)
+                    invalidate()
                 }
             }
 
             MotionEvent.ACTION_MOVE -> {
                 if (touchX != null && touchY != null) {
-                    drawPath.lineTo(touchX!!, touchY!!)
+                    touchMove(touchX, touchY)
+                    invalidate()
                 }
             }
 
             MotionEvent.ACTION_UP -> {
-                if (touchX != null && touchY != null) {
-                    drawPath.lineTo(touchX, touchY);
-                    drawCanvas.drawPath(drawPath, drawPaint);
-                    drawPath.reset();
-                }
-            }
-            else -> {
-                return false
+                touchUp()
+                invalidate()
             }
         }
-
-        invalidate()
         return true
+    }
+
+    private fun touchMove(touchX: Float, touchY: Float) {
+        var dx = Math.abs(touchX - mX)
+        var dy = Math.abs(touchY - mY)
+
+        if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
+            drawPath.quadTo(mX, mY, (touchX + mX) / 2, (touchY + mY) / 2)
+            mX = touchX
+            mY = touchY
+        }
+    }
+
+    private fun touchStart(touchX: Float, touchY: Float) {
+        undonePaths.clear()
+        drawPath.reset()
+        drawPath.moveTo(touchX, touchY)
+        mX = touchX
+        mY = touchY
+    }
+
+    private fun touchUp() {
+        drawPath.lineTo(mX, mY)
+        drawCanvas.drawPath(drawPath, drawPaint)
+        paths.add(drawPath)
+        drawPath = Path()
+    }
+
+    fun eraseAll() {
+        drawPath = Path()
+        paths.clear()
+        drawCanvas.drawColor(Color.WHITE)
+        invalidate()
     }
 }

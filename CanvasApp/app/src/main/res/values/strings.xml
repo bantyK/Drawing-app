@@ -7,8 +7,8 @@
     <string name="action_save">Save</string>
     <string name="action_color">Color Picker</string>
     <string name="action_brush">Brush Size</string>
-    <string name="delete_drawing">Delete Drawing!</string>
-    <string name="new_drawing_warning">Your current drawing will be completely erased, do you want to proceed?</string>
+    <string name="delete_drawing_heading">Delete Drawing!</string>
+    <string name="delete_drawing_warning">Your current drawing will be completely erased, do you want to proceed?</string>
     <string name="action_redo">Redo</string>
     <string name="action_share">Share</string>
     <string name="label_brush_size">Brush Size:</string>

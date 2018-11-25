@@ -7,7 +7,7 @@
     <item
             android:id="@+id/action_erase"
             android:title="@string/action_erase"
-            android:icon="@drawable/ic_action_brush"
+            android:icon="@drawable/ic_action_erase"
             app:showAsAction="always"/>
 
 
