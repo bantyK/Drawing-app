@@ -3,6 +3,7 @@ package banty.com.canvasapp
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import java.util.*
@@ -21,9 +22,11 @@ class CustomView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     private var currentBrushSize: Float = 1F
     private var lastBrushSize: Float = 1F
 
-
+    // Arraylist to maintain a list of paths drawn, to be used in undo and redo operations
+    // canvas will draw all the paths which are stored in the paths array.
     private val paths = ArrayList<Path>()
     private val undonePaths = ArrayList<Path>()
+
     private var mX: Float = 0F
     private var mY: Float = 0F
     private val TOUCH_TOLERANCE = 4
@@ -50,6 +53,7 @@ class CustomView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     }
 
     override fun onDraw(canvas: Canvas?) {
+        Log.d("banty", "on draw called")
         for (p in paths) {
             canvas?.drawPath(p, drawPaint)
         }
@@ -93,6 +97,8 @@ class CustomView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         var dx = Math.abs(touchX - mX)
         var dy = Math.abs(touchY - mY)
 
+        // a buffer is added so ease the number of times onDraw will be called, this will
+        // make the rendering look smooth.
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
             drawPath.quadTo(mX, mY, (touchX + mX) / 2, (touchY + mY) / 2)
             mX = touchX
@@ -111,6 +117,7 @@ class CustomView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
     private fun touchUp() {
         drawPath.lineTo(mX, mY)
         drawCanvas.drawPath(drawPath, drawPaint)
+        // add the path to the paths arraylist for supporting undoing operations
         paths.add(drawPath)
         drawPath = Path()
     }
@@ -120,5 +127,22 @@ class CustomView(context: Context, attrs: AttributeSet?) : View(context, attrs) 
         paths.clear()
         drawCanvas.drawColor(Color.WHITE)
         invalidate()
+    }
+
+    fun undoDrawing() {
+        if (paths.isNotEmpty()) {
+            //move the paths from paths list to undone path list.
+            // They are tracked in a different arraylist to support the redo operation
+            undonePaths.add(paths.removeAt(paths.size - 1))
+            invalidate()
+        }
+    }
+
+    fun redoDrawing() {
+        if(undonePaths.isNotEmpty()) {
+            // move the paths from undone array list to paths array list to draw on the screen
+            paths.add(undonePaths.removeAt(undonePaths.size - 1))
+            invalidate()
+        }
     }
 }

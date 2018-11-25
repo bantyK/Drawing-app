@@ -36,9 +36,18 @@ class MainActivity : AppCompatActivity() {
             R.id.action_erase -> {
                 showEraseDialog()
             }
+
+            R.id.action_undo -> {
+                drawingView.undoDrawing()
+            }
+
+            R.id.action_redo -> {
+                drawingView.redoDrawing()
+            }
         }
         return false
     }
+
 
     private fun showEraseDialog() {
         val deleteDialog = AlertDialog.Builder(this)
