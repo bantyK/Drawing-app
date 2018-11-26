@@ -24,17 +24,6 @@
             app:showAsAction="always"/>
 
     <item
-            android:id="@+id/action_brush"
-            android:title="@string/action_brush"
-            android:icon="@drawable/ic_action_brush"
-            app:showAsAction="always"/>
-    <item
-            android:id="@+id/action_color"
-            android:title="@string/action_color"
-            android:icon="@drawable/ic_action_color"
-            app:showAsAction="always"/>
-
-    <item
             android:id="@+id/action_save"
             android:title="@string/action_save"
             android:icon="@drawable/ic_action_save"
